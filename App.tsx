@@ -70,7 +70,7 @@ const App: React.FC = () => {
     const rows = ideas.map(idea => {
         const filename = 'image_filename.jpg';
         // Escape double quotes by doubling them and wrap field in quotes
-        const title = `"${idea.object.replace(/"/g, '""')}"`;
+        const title = `"${idea.prompt.replace(/"/g, '""')}"`;
         const keywords = `"${idea.keywords.join(', ')}"`;
         const category = '3';
         const releases = '';
@@ -105,10 +105,18 @@ const App: React.FC = () => {
       return <ErrorMessage message={error} />;
     }
     if (ideas.length > 0) {
-      const allCopied = copiedPrompts.size >= ideas.length;
       return (
         <>
-          <div className="flex flex-col gap-4 mt-12">
+          <div className="mt-12 text-center">
+            <button
+                onClick={handleDownloadCSV}
+                className="rounded-md bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 inline-flex items-center gap-x-2"
+            >
+                <DownloadIcon className="h-6 w-6" />
+                Download CSV
+            </button>
+          </div>
+          <div className="flex flex-col gap-4 mt-8">
             {ideas.map((idea, index) => (
               <IdeaRow 
                 key={`${idea.object}-${index}`} 
@@ -119,17 +127,6 @@ const App: React.FC = () => {
               />
             ))}
           </div>
-          {allCopied && (
-            <div className="mt-8 text-center">
-                <button
-                    onClick={handleDownloadCSV}
-                    className="rounded-md bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 inline-flex items-center gap-x-2"
-                >
-                    <DownloadIcon className="h-6 w-6" />
-                    Download CSV
-                </button>
-            </div>
-          )}
         </>
       );
     }
