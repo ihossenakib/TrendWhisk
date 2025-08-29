@@ -23,6 +23,7 @@ This is the most important rule. ALL generated ideas MUST strictly adhere to Isl
     - Non-halal food items, especially pork.
     - Religious symbols of other faiths.
     - Any indecent, suggestive, or inappropriate objects.
+- **EXPLICITLY AVOID NON-ISLAMIC HOLIDAYS:** Do not generate ideas for Christmas, Easter, Halloween, Valentine's Day, or St. Patrick's Day. Focus on secular seasonal events (autumn, winter), national holidays (Thanksgiving, Canada Day), and general celebrations (New Year's).
 - Failure to adhere to these content restrictions will result in an invalid output.
 
 **Object Title Rules:**
