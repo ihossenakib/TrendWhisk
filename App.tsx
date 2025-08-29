@@ -1,18 +1,37 @@
+
 import React, { useState, useCallback } from 'react';
 import type { Idea } from './types';
 import { generateTrendingIdeas } from './services/geminiService';
 import Header from './components/Header';
-import IdeaCard from './components/IdeaCard';
+import IdeaRow from './components/IdeaRow';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 import { SparklesIcon } from './components/icons/SparklesIcon';
 import Welcome from './components/Welcome';
+import { DownloadIcon } from './components/icons/DownloadIcon';
 
 const App: React.FC = () => {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [generatedObjects, setGeneratedObjects] = useState<Set<string>>(new Set());
+
+  const [generatedObjects, setGeneratedObjects] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('generatedObjects');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [copiedPrompts, setCopiedPrompts] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('copiedPrompts');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
 
   const handleGenerateIdeas = useCallback(async () => {
     setIsLoading(true);
@@ -22,7 +41,9 @@ const App: React.FC = () => {
       setIdeas(newIdeas);
       setGeneratedObjects(prevSet => {
         const newObjectNames = newIdeas.map(idea => idea.object);
-        return new Set([...prevSet, ...newObjectNames]);
+        const updatedSet = new Set([...prevSet, ...newObjectNames]);
+        localStorage.setItem('generatedObjects', JSON.stringify(Array.from(updatedSet)));
+        return updatedSet;
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -35,6 +56,47 @@ const App: React.FC = () => {
     }
   }, [generatedObjects]);
 
+  const handleCopyPrompt = useCallback((prompt: string) => {
+    setCopiedPrompts(prevSet => {
+        const newSet = new Set(prevSet);
+        newSet.add(prompt);
+        localStorage.setItem('copiedPrompts', JSON.stringify(Array.from(newSet)));
+        return newSet;
+    });
+  }, []);
+
+  const handleDownloadCSV = () => {
+    const headers = ['Filename', 'Title', 'Keywords', 'Category', 'Releases'];
+    const rows = ideas.map(idea => {
+        const filename = 'image_filename.jpg';
+        // Escape double quotes by doubling them and wrap field in quotes
+        const title = `"${idea.object.replace(/"/g, '""')}"`;
+        const keywords = `"${idea.keywords.join(', ')}"`;
+        const category = '3';
+        const releases = '';
+        return [filename, title, keywords, category, releases].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    const now = new Date();
+    const pad = (num: number) => num.toString().padStart(2, '0');
+    const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const csvFilename = `${timestamp}.csv`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', csvFilename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return <LoadingSpinner />;
@@ -43,12 +105,32 @@ const App: React.FC = () => {
       return <ErrorMessage message={error} />;
     }
     if (ideas.length > 0) {
+      const allCopied = copiedPrompts.size >= ideas.length;
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-          {ideas.map((idea, index) => (
-            <IdeaCard key={index} idea={idea} />
-          ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-4 mt-12">
+            {ideas.map((idea, index) => (
+              <IdeaRow 
+                key={`${idea.object}-${index}`} 
+                idea={idea} 
+                index={index}
+                isCopied={copiedPrompts.has(idea.prompt)}
+                onCopy={handleCopyPrompt}
+              />
+            ))}
+          </div>
+          {allCopied && (
+            <div className="mt-8 text-center">
+                <button
+                    onClick={handleDownloadCSV}
+                    className="rounded-md bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 inline-flex items-center gap-x-2"
+                >
+                    <DownloadIcon className="h-6 w-6" />
+                    Download CSV
+                </button>
+            </div>
+          )}
+        </>
       );
     }
     return <Welcome />;
@@ -63,7 +145,7 @@ const App: React.FC = () => {
         >
           <defs>
             <pattern
-              id="983e3e4c-de6d-4c3f-8d9e-985c2c784927"
+              id="983e3e4c-de6d-4c3a-a85a-782d8d7cbfee"
               width={200}
               height={200}
               x="50%"
@@ -73,39 +155,24 @@ const App: React.FC = () => {
               <path d="M.5 200V.5H200" fill="none" />
             </pattern>
           </defs>
-          <svg x="50%" y={-1} className="overflow-visible fill-gray-800/20">
-            <path
-              d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
-              strokeWidth={0}
-            />
-          </svg>
-          <rect width="100%" height="100%" strokeWidth={0} fill="url(#983e3e4c-de6d-4c3f-8d9e-985c2c784927)" />
+          <rect width="100%" height="100%" strokeWidth={0} fill="url(#983e3e4c-de6d-4c3a-a85a-782d8d7cbfee)" />
         </svg>
-
-        <div className="max-w-7xl mx-auto py-8 sm:py-16">
-          <Header />
-
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <button
-              onClick={handleGenerateIdeas}
-              disabled={isLoading}
-              className="relative inline-flex items-center gap-x-2 rounded-full bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg hover:bg-cyan-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
-              aria-label={isLoading ? 'Generating ideas' : 'Generate new ideas'}
-              aria-live="polite"
-            >
-              <SparklesIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-              {isLoading ? 'Generating...' : 'Generate New Ideas'}
-            </button>
-          </div>
-
-          <main className="mt-8">
-            {renderContent()}
-          </main>
+        <div className="mx-auto max-w-4xl py-24 sm:py-32">
+            <Header />
+            <div className="mt-12 text-center">
+              <button
+                onClick={handleGenerateIdeas}
+                disabled={isLoading}
+                className="rounded-md bg-indigo-500 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-x-2"
+              >
+                <SparklesIcon className="h-6 w-6" />
+                {isLoading ? 'Generating...' : 'Generate Trending Ideas'}
+              </button>
+            </div>
+            <div className="mt-8">
+              {renderContent()}
+            </div>
         </div>
-
-        <footer className="text-center py-8 text-slate-500 text-sm">
-            <p>Powered by Google Gemini</p>
-        </footer>
       </div>
     </div>
   );
