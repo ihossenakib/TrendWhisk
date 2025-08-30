@@ -1,10 +1,9 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Idea } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const createPrompt = (existingObjects: string[], targetDate: string) => `
+const createPrompt = (existingObjects: string[]) => `
 You are an expert creative director for a 3D artist specializing in high-end, commercially valuable stock imagery for Adobe Stock. Your goal is to generate unique and diverse ideas for objects that are rare on microstock websites and have high commercial appeal.
 
 **Core Task:**
@@ -14,8 +13,14 @@ Generate a list of 30 unique object ideas.
 You MUST NOT generate any object titles that are present in the following list of previously generated ideas. Every single idea you provide must be new and unique compared to this list.
 **Existing ideas to avoid:** [${existingObjects.join(', ')}]
 
-**CRITICAL THEME: Upcoming Events**
-Focus ALL ideas on objects related to holidays, seasons, and cultural events happening in **America and Canada** around **${targetDate}**. This is approximately 3 months and 10 days from now. Brainstorm relevant events (e.g., seasonal changes, specific holidays, cultural festivals, national days) and generate object ideas that would be in high demand for marketing and editorial content related to those events.
+**THEME DIVERSITY (NON-NEGOTIABLE):**
+Generate a diverse set of ideas from a wide range of commercially valuable, evergreen categories. Ensure the final list of 30 ideas is not concentrated in one narrow niche. The ideas should be globally relevant. Pull ideas from several of the following categories:
+- **Food:** Individual fruits, vegetables, or simple, elegant food items (e.g., a perfect loaf of bread, a stack of pancakes).
+- **Household Items:** Modern furniture, minimalist decor, kitchen utensils, daily supplies.
+- **Islamic Culture:** Traditional items like prayer beads (tasbih), geometric patterns, lanterns (fanoos), elegant calligraphy (that doesn't contain specific religious text), traditional patterns.
+- **Toys & Education:** Simple and elegant kids' toys (e.g., wooden blocks, spinning top), school supplies (e.g., stack of books, art supplies).
+- **Nature:** Polished stones, unique leaves, seashells, abstract representations of natural elements.
+- **Abstract & Concepts:** Objects representing concepts like 'peace', 'innovation', or 'health'.
 
 **CONTENT RESTRICTION: ISLAMIC COMPLIANCE (NON-NEGOTIABLE)**
 This is the most important rule. ALL generated ideas MUST strictly adhere to Islamic principles.
@@ -83,19 +88,14 @@ const responseSchema = {
 
 export async function generateTrendingIdeas(existingObjects: string[] = []): Promise<Idea[]> {
   try {
-    const targetDate = new Date();
-    targetDate.setMonth(targetDate.getMonth() + 3);
-    targetDate.setDate(targetDate.getDate() + 10);
-    const targetDateStr = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-    const prompt = createPrompt(existingObjects, targetDateStr);
+    const prompt = createPrompt(existingObjects);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        temperature: 0.7,
+        temperature: 0.8,
       },
     });
 
