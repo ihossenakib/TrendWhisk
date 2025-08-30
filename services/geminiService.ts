@@ -8,8 +8,11 @@ const createPrompt = (existingObjects: string[], targetDate: string) => `
 You are an expert creative director for a 3D artist specializing in high-end, commercially valuable stock imagery for Adobe Stock. Your goal is to generate unique and diverse ideas for objects that are rare on microstock websites and have high commercial appeal.
 
 **Core Task:**
-Generate a list of 30 unique object ideas. These objects MUST NOT be in the following list of already generated objects:
-[${existingObjects.join(', ')}]
+Generate a list of 30 unique object ideas.
+
+**Uniqueness Constraint (NON-NEGOTIABLE):**
+You MUST NOT generate any object titles that are present in the following list of previously generated ideas. Every single idea you provide must be new and unique compared to this list.
+**Existing ideas to avoid:** [${existingObjects.join(', ')}]
 
 **CRITICAL THEME: Upcoming Events**
 Focus ALL ideas on objects related to holidays, seasons, and cultural events happening in **America and Canada** around **${targetDate}**. This is approximately 3 months and 10 days from now. Brainstorm relevant events (e.g., seasonal changes, specific holidays, cultural festivals, national days) and generate object ideas that would be in high demand for marketing and editorial content related to those events.

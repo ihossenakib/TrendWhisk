@@ -38,13 +38,27 @@ const App: React.FC = () => {
     setError(null);
     try {
       const newIdeas = await generateTrendingIdeas(Array.from(generatedObjects));
-      setIdeas(newIdeas);
-      setGeneratedObjects(prevSet => {
-        const newObjectNames = newIdeas.map(idea => idea.object);
-        const updatedSet = new Set([...prevSet, ...newObjectNames]);
-        localStorage.setItem('generatedObjects', JSON.stringify(Array.from(updatedSet)));
-        return updatedSet;
-      });
+      
+      // Client-side filtering for extra safety
+      const uniqueNewIdeas = newIdeas.filter(idea => !generatedObjects.has(idea.object));
+      
+      if (uniqueNewIdeas.length < newIdeas.length && newIdeas.length > 0) {
+        console.warn(`Filtered out ${newIdeas.length - uniqueNewIdeas.length} duplicate ideas from the AI response.`);
+      }
+      
+      if (uniqueNewIdeas.length === 0 && newIdeas.length > 0) {
+          setError("The AI returned only ideas that have been generated before. The memory is full of recent ideas. Please try again later.");
+          setIdeas([]);
+      } else {
+          setIdeas(uniqueNewIdeas);
+          setGeneratedObjects(prevSet => {
+            const newObjectNames = uniqueNewIdeas.map(idea => idea.object);
+            const updatedSet = new Set([...prevSet, ...newObjectNames]);
+            localStorage.setItem('generatedObjects', JSON.stringify(Array.from(updatedSet)));
+            return updatedSet;
+          });
+      }
+
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -166,6 +180,15 @@ const App: React.FC = () => {
                 {isLoading ? 'Generating...' : 'Generate Trending Ideas'}
               </button>
             </div>
+            
+            {generatedObjects.size > 0 && (
+                <div className="mt-4 text-center text-sm text-slate-400">
+                    <p>
+                        <span role="img" aria-label="brain emoji">🧠</span> Remembering {generatedObjects.size} previously generated ideas.
+                    </p>
+                </div>
+            )}
+
             <div className="mt-8">
               {renderContent()}
             </div>
