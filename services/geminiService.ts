@@ -7,20 +7,33 @@ const createPrompt = (existingObjects: string[]) => `
 You are an expert creative director for a 3D artist specializing in high-end, commercially valuable stock imagery for Adobe Stock. Your goal is to generate unique and diverse ideas for objects that are rare on microstock websites and have high commercial appeal.
 
 **Core Task:**
-Generate a list of 30 unique object ideas.
+Generate a list of 70 unique object ideas.
 
 **Uniqueness Constraint (NON-NEGOTIABLE):**
-You MUST NOT generate any object titles that are present in the following list of previously generated ideas. Every single idea you provide must be new and unique compared to this list.
+You MUST NOT generate any object titles that are present in the following list of previously generated ideas. Every single idea you provide must be new and unique compared to this list. Repetitive or similar ideas are frustrating and must be avoided.
 **Existing ideas to avoid:** [${existingObjects.join(', ')}]
 
-**THEME DIVERSITY (NON-NEGOTIABLE):**
-Generate a diverse set of ideas from a wide range of commercially valuable, evergreen categories. Ensure the final list of 30 ideas is not concentrated in one narrow niche. The ideas should be globally relevant. Pull ideas from several of the following categories:
-- **Food:** Individual fruits, vegetables, or simple, elegant food items (e.g., a perfect loaf of bread, a stack of pancakes).
-- **Household Items:** Modern furniture, minimalist decor, kitchen utensils, daily supplies.
-- **Islamic Culture:** Traditional items like prayer beads (tasbih), geometric patterns, lanterns (fanoos), elegant calligraphy (that doesn't contain specific religious text), traditional patterns.
-- **Toys & Education:** Simple and elegant kids' toys (e.g., wooden blocks, spinning top), school supplies (e.g., stack of books, art supplies).
-- **Nature:** Polished stones, unique leaves, seashells, abstract representations of natural elements.
-- **Abstract & Concepts:** Objects representing concepts like 'peace', 'innovation', or 'health'.
+**THEME DIVERSITY (CRITICAL & NON-NEGOTIABLE):**
+The final list of 70 ideas MUST be extremely diverse and cover a wide range of commercially valuable, evergreen categories. Do not concentrate on one or two niches. Actively pull ideas from SEVERAL of the following categories to ensure maximum variety.
+- **Simple Objects & Daily Life:**
+  - **Food:** Individual fruits, vegetables, or simple, elegant food items (e.g., a perfect loaf of bread, a stack of pancakes).
+  - **Household Items:** Modern furniture, minimalist decor, kitchen utensils, daily supplies.
+  - **Toys & Education:** Simple and elegant kids' toys (e.g., wooden blocks, spinning top), school supplies (e.g., stack of books, art supplies).
+- **Cultural & Natural Elements:**
+  - **Islamic Culture:** Traditional items like prayer beads (tasbih), geometric patterns, lanterns (fanoos), elegant calligraphy (that doesn't contain specific religious text), traditional patterns.
+  - **Nature:** Polished stones, unique leaves, seashells, abstract representations of natural elements.
+  - **Abstract & Concepts:** Objects representing concepts like 'peace', 'innovation', or 'health'.
+- **Industrial & Commercial Objects:**
+  - **Medical & Healthcare:** Stethoscope, microscope, test tubes, surgical tools, modern pill bottle.
+  - **Agriculture:** Modern farming drone, stylized wheat sheaf, high-tech soil sensor.
+  - **Technology:** Circuit board, server rack, fiber optic cable, minimalist smartphone.
+  - **Manufacturing & Industry:** CNC machine bit, industrial robot arm, gears, conveyor belt section.
+  - **Food & Beverage Processing:** Stainless steel vat, bottling line component, industrial mixer.
+  - **Textiles:** Spool of thread, loom shuttle, fabric swatch stack.
+  - **Transportation & Logistics:** Shipping container, aircraft turbine blade, pallet jack.
+  - **Financial Services:** Abstract gold coin, secure credit card chip, bull and bear statuettes.
+  - **Retail:** Barcode scanner, POS terminal, minimalist shopping bag.
+
 
 **CONTENT RESTRICTION: ISLAMIC COMPLIANCE (NON-NEGOTIABLE)**
 This is the most important rule. ALL generated ideas MUST strictly adhere to Islamic principles.
@@ -36,7 +49,7 @@ This is the most important rule. ALL generated ideas MUST strictly adhere to Isl
 
 **Object Title Rules:**
 1.  The "object" title MUST be SEO-optimized for Adobe Stock. It should be descriptive, clear, and contain relevant keywords that a buyer would search for. Think about titles like "Minimalist Ceramic Pumpkin for Autumn Decor" instead of just "Pumpkin".
-2.  **Exactly 15 of the 30 titles** MUST end with the phrase ", on transparent background". The other 15 titles should not. Distribute this randomly.
+2.  **Exactly 35 of the 70 titles** MUST end with the phrase ", on transparent background". The other 35 titles should not. Distribute this randomly.
 
 **Keyword Generation Rules:**
 1.  For each idea, provide a list of **exactly 25 highly relevant SEO keywords**.
